@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: ai-agent-service
+
+server:
+  port: 8080
+env:
+  - name: GEMINI_API_KEY
+    valueFrom:
+      secretKeyRef:
+        name: gemini-secret
+        key: GEMINI_API_KEY

@@ -1,66 +1,84 @@
-# 🚀 Microservices-Based Order Management System
+# 🚀 Microservices-Based Order Management System (with API Gateway & AI Agent)
 
 ## 📌 Overview
 
-This project is a **Spring Boot Microservices Architecture** implementing an **Order Management System** with secure communication using **JWT Authentication**.
+This project is a **production-ready microservices architecture** built using **Spring Boot, Kubernetes, and AI integration**.
 
-It demonstrates real-world backend concepts like:
+It demonstrates how to design scalable backend systems with:
 
-* Microservices architecture
-* Inter-service communication (Feign Client)
-* Authentication & Authorization (JWT)
-* REST APIs
-* Docker (deployment ready)
+* 🧩 **Microservices architecture**
+* 🔐 **JWT Authentication & Authorization**
+* 🔗 **Inter-service communication (Feign Client)**
+* 🌐 **API Gateway (Spring Cloud Gateway)**
+* ☸️ **Kubernetes Deployment (Minikube)**
+* 🤖 **Agentic AI Integration (Gemini LLM)**
 
 ---
 
 ## 🏗️ Architecture
 
 ```
-Client (Postman / Curl / Frontend)
+Client (Postman / Curl)
         ↓
-Auth Service (JWT Authentication)
+API Gateway (Spring Cloud Gateway)
         ↓
-Order Service (Secured APIs)
-        ↓
-Product Service (Data Provider)
+ ┌───────────────┬───────────────┬───────────────┐
+ │               │               │               │
+ ▼               ▼               ▼               ▼
+Auth Service   Order Service   Product Service   AI Agent Service
+ (JWT)          (Business)      (Data)            (LLM + Logic)
 ```
 
 ---
 
-## 🛠️ Tech Stack
+## 🔁 System Flow
 
-* **Java 17**
-* **Spring Boot**
-* **Spring Security**
-* **Spring Cloud OpenFeign**
-* **JWT (JSON Web Token)**
-* **Maven**
-* **Docker** (optional / upcoming)
+1. 🔐 User logs in via **Auth Service**
+2. 🎫 JWT token is generated
+3. 🌐 Requests go through **API Gateway**
+4. 📦 Order Service fetches data from Product Service
+5. 🤖 AI Agent processes natural language queries
+6. 📩 Intelligent response returned to user
+
+---
+
+## 🧱 Tech Stack
+
+| Layer            | Technology            |
+| ---------------- | --------------------- |
+| Backend          | Spring Boot (Java 17) |
+| Security         | Spring Security + JWT |
+| API Gateway      | Spring Cloud Gateway  |
+| Communication    | OpenFeign             |
+| AI Integration   | Gemini API            |
+| Containerization | Docker                |
+| Orchestration    | Kubernetes (Minikube) |
+| Build Tool       | Maven                 |
 
 ---
 
 ## 📦 Microservices
 
-### 🟦 Product Service
+### 🟨 Auth Service
 
-* Port: **8081**
-* Provides product data
-* Endpoint:
+* Port: **8083**
+* Handles authentication & JWT generation
 
-  ```
-  GET /products
-  ```
+**Endpoint:**
+
+```
+POST /auth/login
+```
 
 ---
 
 ### 🟩 Order Service
 
 * Port: **8082**
-* Secured using JWT
-* Communicates with Product Service via Feign Client
+* Secured service
+* Calls Product Service via Feign
 
-#### Endpoint:
+**Endpoint:**
 
 ```
 GET /orders/products-from-product-service
@@ -68,103 +86,148 @@ GET /orders/products-from-product-service
 
 ---
 
-### 🟨 Auth Service
+### 🟦 Product Service
 
-* Port: **8083**
-* Handles authentication and token generation
+* Port: **8081**
+* Provides product data
 
-#### Endpoint:
+**Endpoint:**
 
 ```
-POST /auth/login
+GET /products
 ```
 
-#### Request Body:
+---
 
-```json
-{
-  "username": "admin",
-  "password": "admin"
-}
+### 🤖 AI Agent Service
+
+* Port: **8084**
+* Uses Gemini LLM for intelligent responses
+* Calls Product Service for context
+
+**Endpoints:**
+
+```
+GET /agent/recommend
+GET /agent/chat?query=...
 ```
 
-#### Response:
+---
 
-```json
-{
-  "token": "JWT_TOKEN"
-}
-```
+### 🌐 API Gateway
+
+* Port: **30000 (NodePort - Kubernetes)**
+* Routes all external traffic to services
 
 ---
 
 ## 🔐 Authentication Flow
 
-1. User logs in via **Auth Service**
-2. JWT Token is generated
-3. Token is passed in header to Order Service
-4. Order Service validates token
-5. If valid → request proceeds
+```
+User → Auth Service → JWT Token
+        ↓
+Gateway → Order Service → Validate Token
+        ↓
+Access Granted / Denied
+```
 
 ---
 
-## ▶️ How to Run
+## ▶️ Local Setup
 
-### 1️⃣ Build all services
+### 1️⃣ Build Services
 
 ```bash
 cd product-service && mvn clean package
 cd ../order-service && mvn clean package
 cd ../auth-service && mvn clean package
+cd ../api-gateway && mvn clean package
+cd ../ai-agent-service && mvn clean package
 ```
 
 ---
 
-### 2️⃣ Run services
+### 2️⃣ Run Services
 
 ```bash
-# Product Service
-cd product-service
-java -jar target/*.jar
-
-# Order Service
-cd ../order-service
-java -jar target/*.jar
-
-# Auth Service
-cd ../auth-service
 java -jar target/*.jar
 ```
 
 ---
 
-## 🧪 Testing APIs
+## ☸️ Kubernetes Deployment
 
-### 🔑 Step 1: Get Token
+### Start Minikube
 
 ```bash
-curl -X POST http://localhost:8083/auth/login \
+minikube start
+```
+
+---
+
+### Use Minikube Docker
+
+```bash
+eval $(minikube docker-env)
+```
+
+---
+
+### Build Images
+
+```bash
+docker build -t product-service ./product-service
+docker build -t order-service ./order-service
+docker build -t auth-service ./auth-service
+docker build -t api-gateway ./api-gateway
+docker build -t ai-agent-service ./ai-agent-service
+```
+
+---
+
+### Apply K8s Config
+
+```bash
+kubectl apply -f k8s/
+```
+
+---
+
+### Verify
+
+```bash
+kubectl get pods
+kubectl get services
+```
+
+---
+
+## 🧪 API Testing
+
+### 🔑 Login
+
+```bash
+curl -X POST http://$(minikube ip):30000/auth/login \
 -H "Content-Type: application/json" \
 -d '{"username":"admin","password":"admin"}'
 ```
 
 ---
 
-### 🔒 Step 2: Call Secured API
+### 🔒 Call Secured API
 
 ```bash
-curl http://localhost:8082/orders/products-from-product-service \
+curl http://$(minikube ip):30000/orders/products-from-product-service \
 -H "Authorization: Bearer YOUR_TOKEN"
 ```
 
 ---
 
-## 🐳 Docker (Next Step)
-
-You can containerize all services using Docker and run them using:
+### 🤖 AI Query
 
 ```bash
-docker-compose up --build
+curl --get --data-urlencode "query=Suggest a cheap phone" \
+http://$(minikube ip):30000/agent/chat
 ```
 
 ---
@@ -173,27 +236,36 @@ docker-compose up --build
 
 * ✅ Microservices architecture
 * ✅ JWT-based authentication
-* ✅ Secure REST APIs
-* ✅ Feign client for service communication
-* ✅ Production-ready structure
+* ✅ API Gateway routing
+* ✅ Kubernetes deployment
+* ✅ AI-powered service (Gemini LLM)
+* ✅ Real-world production setup
 
 ---
 
-## 📌 Future Enhancements
+## 🚀 Future Enhancements
 
-* API Gateway (Spring Cloud Gateway)
-* Service Discovery (Eureka)
-* Database integration (MySQL/PostgreSQL)
-* Kubernetes deployment
+* 🔍 Service Discovery (Eureka)
+* 📊 Observability (Prometheus + Grafana)
+* 🗄️ Database integration (PostgreSQL/MySQL)
+* 🔄 CI/CD pipeline (GitHub Actions)
+* 🧠 Multi-agent AI workflows
+
+---
+
+## 💼 Resume Impact
+
+> Built a scalable microservices system using Spring Boot, Kubernetes, API Gateway, and integrated a Gemini-powered AI agent for intelligent service orchestration.
 
 ---
 
 ## 👨‍💻 Author
 
 **Prabal Gupta**
+AI Engineer | Cloud | Kubernetes | GenAI
 
 ---
 
-## ⭐ If you like this project
+## ⭐ Support
 
-Give it a ⭐ on GitHub!
+If you like this project, give it a ⭐ on GitHub!

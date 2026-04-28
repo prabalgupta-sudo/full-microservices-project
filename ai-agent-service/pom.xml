@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.example</groupId>
-    <artifactId>api-gateway</artifactId>
+    <artifactId>ai-agent-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <parent>
@@ -17,16 +17,16 @@
 
     <dependencies>
 
-        <!-- ✅ CORRECT Gateway -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-gateway</artifactId>
-        </dependency>
-
-        <!-- REQUIRED for Gateway -->
+        <!-- Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-webflux</artifactId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <!-- Feign -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
         </dependency>
 
     </dependencies>
@@ -43,6 +43,7 @@
         </dependencies>
     </dependencyManagement>
 
+    <!-- ✅ THIS IS THE IMPORTANT PART -->
     <build>
         <plugins>
             <plugin>

@@ -10,7 +10,7 @@ import java.util.*;
 @RequestMapping("/agent")
 public class AgentController {
 
-    private final String GEMINI_API_KEY = "AIzaSyA5VgppLYETSS1JXO9TE-_GXbSnQ79mMHs";
+    private final String GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
 
     @GetMapping("/chat")
     public String chat(@RequestParam String query) {
